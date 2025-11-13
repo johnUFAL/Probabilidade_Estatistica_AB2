@@ -1,0 +1,42 @@
+1 Intervalo de confiança para Valor_Credito está entre 3063.268 a 3479.248
+indica que 98% de confiança, a média verdadeira do valor de crédito na população está entre esses dois valores
+
+2 O resultado demostra que  sucesso que nesse caso refere-se a qualidade do crédito, ou seja, um bom crédito é aproximadamente
+70% com 98% de confiança esse proporção é verdadeira na populaçãpmestá entre 66,5% e 73,3%
+
+3 A hipotese se baseia em ver se homens divorciados pedem mais  crédito que mulheres divorciadas
+temos que a media dos homens é 3684.70 e media das mulheres é 2877.77
+p-valor = 0.048
+Como o p-valor é maior que 2%, não há evidências suficinetes para afirmar que a hipotese é verdadeira
+no nivel de confiance de 98%
+
+4 A hipotese é que homens tem a qualidade do crédito melhor
+Homens divorciados: 0.600
+Mulheres divorciadas: 0.648
+Homens solteiros: 0.734
+Homens casados/viúvos: 0.728
+p-valor=0,02
+Há diferença significativa entre as porporções, logo a qualidade de crédito não é igual
+A hipotese pode ser sustentada, homens tendem a ter melhor quaçidade de crédito
+
+5 Checar se há uma grande diferença no status da conta em relação a quantidade tempo de existencia dela
+Teste de normalidade Shapiro-Wilk: Todos os grupos com p-valor baixo, os dados não são normais 
+Teste de Homogeneidade de Variância Levene: p-valor < 0,05, não são homogêneas, viola um pressuposto de ANOVA. Mas o desvio não é grande, então podemos usar cautelosamente
+ANOVA: p-valor = 0,00267 < 0,05, há diferença siginificativa no tempo de existência da conta entre os grupos
+
+6 Checar se a idade tem relação com a quantidade de crédito solicitado
+correlação = 0.033, praticamente nula 
+p-valor = 0,3013 > 0,05, mão é signficativo
+Não há correlação siginificativa entre idade e o valor do c´redito solicitado. a idade não influencia o valor do crédito
+
+7 Modelo etimado: Idade = 35,11 + 0,0001318 * Valor_credito
+interceptor: 35,11 idade média estimada quando o valor crédito é zero
+coeficiente: 0,0001318 para cada aumento de 1 unidade no valor do créditoa idade aumenta 0,00013 anos
+p-valor = 0,301 > 0,06, não é siginificativo
+R**2 = 0.00107, apenas 0.1% da variação da idade
+p < 2.2e-16, não são normais 
+Não há relação siginificativa entre essas duas variáveis
+
+8 Antes: w = 0.7934, p < 2.2e-16 >> forte violação da normalidade 
+  Depois: w = 0.993, p < 0.0001242 >> não perfeitamente normal, mas mais próximo da normalidade 
+Ficou mais simétrica

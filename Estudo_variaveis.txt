@@ -1,0 +1,148 @@
+Sobre as variaveis
+
+--
+
+Status_conta – Status da conta corrente
+A11 - < 0 DM
+A12 - <= ... < 200 DM
+A13 - >= 200 DM
+A14 - sem conta
+
+--
+
+Meses_existencia – Duração do crédito em meses.
+numerica
+
+--
+
+Historico_credito – Histórico de crédito.
+A30 - Nenhum crediti anterior
+A31 - Todos créditos pagos
+A32 - Credito existente pago em dia
+A33 - Atraso no pagamento no passado
+A34 - conta critica, credito em outros bancos
+
+--
+
+Proposito – Motivo do crédito.
+A40 - carro
+A41 - carro usado
+A42 - mobilia/equipamento
+A43 - radio/tv
+A44 - eletrodomestico
+A45 - reparos
+A46 - educação
+A47 - férias
+A48 - requalificação
+A49 - negócios
+A410 - outros
+
+--
+
+Valor_credito – Valor do crédito solicitado.
+numerico
+
+--
+
+Saldo_poupanca – Saldo de poupança.
+A61 - < 100 DM
+A62 - 100 <= ... < 500 DM
+A63 - 500 <= ... < 1000 DM
+A64 - >= 1000 DM
+A65 - desconhecido
+
+
+--
+
+Tempo_emprego – Tempo de emprego atual.
+A71 - desempregado
+A72 - < 1 ano
+A73 - <= 1 ... < 4 anos
+A74 - <= 4 ... < 7 anos
+A75 - >= 7 anos
+
+--
+
+Taxa_parcela_renda – Taxa da parcela do crédito em relação à renda (%).
+numerica
+
+--
+
+Status_pessoal_sexo – Estado civil e sexo).
+A91 - homem divorciado
+A92 - mulher divorciada
+A93 - homem solteiro
+A94 - homem casado/viuvo
+A95 - mulher solteira
+
+--
+
+Fiador – Existência de fiador ou garantias.
+A101 - nenhum
+A102 - co-assistente
+A103 - fiador
+
+--
+
+Residencia_atual – Tempo de residência atual.
+numerica
+
+--
+
+Bens – Tipo de bens/garantias.
+A121 - imovel
+A122 - se nao A121, poupança, seguro
+A123 - se nao 121/122, carro ou outro
+A124 - desconhecido, sem
+
+--
+
+Idade – Idade do cliente.
+numerica
+
+--
+
+Outros planos de parcelamento.
+A141 - banco
+A142 - lojas
+A143 - nenhum
+
+--
+
+Moradia
+A151 - aluguel
+A152 - propria
+A153 - gratuita
+
+--
+
+Credito_existente – Quantidade de créditos existentes.
+numerica
+
+--
+
+Emprego – Tipo de emprego ou função.
+A171 - nao qualificado - nao residente
+A172 - noa qualificado - residente
+A173 - empregado qualificado/oficial
+A174 - gerente/autonomo/empregado/altamente qualifacdo/oficial
+
+--
+
+Dependentes – Número de dependentes.
+numerico
+
+--
+
+Telefone – Possui telefone?.
+A191 - sim
+A192 - sim, no nome do cliente
+
+--
+
+Trabalhador_estrangeiro – É trabalhador estrangeiro?.
+A201 - sim
+A202 - na0
+
+Classe – Qualidade do crédito - Matriz de custo*
+1 = Bom, 2 = Ruim.
