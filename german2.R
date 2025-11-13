@@ -65,6 +65,15 @@ summary(modelo_anova)
 cor_test <- cor.test(df$Idade,  df$Valor_credito, method = "pearson")
 cor_test
 
+plot(df$Idade, df$Valor_credito,
+     main = "Dispersão: Idade x Valor do Crédito",
+     xlab = "Idade",
+     ylab = "Valor do Crédito Solicitado",
+     pch = 19, col = "darkblue")
+
+abline(lm(df$Valor_credito ~ df$Idade), col = "red", lwd = 2)
+
+
 # 7. Regressão Linear Simples
 modelo <- lm(Idade ~ Valor_credito, data = df)
 summary(modelo)
@@ -80,3 +89,18 @@ shapiro.test(df$log_valor_credito)
 
 media_log <- mean(df$log_valor_credito)
 media_original <- exp(media_log)
+
+par(mfrow = c(1, 2))
+
+hist(df$Valor_credito, main = "Distribuição Original",
+     xlab = "Valor do Crédito", col = "lightblue", breaks = 30)
+
+hist(df$log_valor_credito, main = "Distribuição Logarítmica",
+     xlab = "log(Valor do Crédito)", col = "lightgreen", breaks = 30)
+
+# Análise complementar 
+boxplot(df$Valor_credito ~ cut(df$Idade, breaks = c(18,30,40,50,60,70)),
+        main = "Valor do Crédito por Faixa Etária",
+        xlab = "Faixa Etária",
+        ylab = "Valor do Crédito",
+        col = "lightgray")
