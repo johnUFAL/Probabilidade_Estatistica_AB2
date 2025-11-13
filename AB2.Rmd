@@ -1,0 +1,248 @@
+---
+title: "Trabalho de Probabilidade e Estatística"
+author: "João V. Duarte"
+date: "2025-11-13"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Introdução 
+
+  Este relatório apresenta análises estatísticas do German Credit Data, abordando intervalos de confiança, testes de hipóteses, ANOVA, correlação, regressão linear e transformação de dados.
+
+**Base de dados:** German Credit Data (classificação de risco de crédito)
+**Amostra:** 1000 observações
+**Variável resposta:** Classe (1 = bom crédito, 2 = mau crédito)
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Trabalho de P&E - German Credit Data
+
+rm(list = ls())
+
+# Carregando pacotes utilizados
+library(dplyr)    # Manipulação de dados
+library(car)      # Teste de Levene (ANOVA)
+library(ggplot2)  # Gráficos
+library(MASS)     # Transformações Box-Cox
+library(knitr)
+library(tinytex)
+
+# Importando Dataframe
+
+df <- read.table("german.data", header = FALSE)
+
+colnames(df) <- c(
+"Status_conta", "Meses_existencia", "Historico_credito", "Proposito",
+"Valor_credito", "Saldo_poupanca", "Tempo_emprego", "Taxa_parcela_renda",
+"Status_pessoal_sexo", "Fiador", "Residencia_atual", "Bens",
+"Idade", "Planos_parcelamento", "Moradia", "Credito_existente",
+"Emprego", "Dependentes", "Telefone", "Trabalhador_estrangeiro", "Classe"
+)
+
+# Ajustes
+
+df$Classe[df$Classe == "1.1"] <- "1"
+df$Saldo_poupanca <- as.character(df$Saldo_poupanca)
+
+# Tema dos gráficos
+
+theme_set(theme_minimal())
+
+df_amostra <- head(df, 8) %>% 
+  dplyr::select(Status_conta, Meses_existencia, Valor_credito, Idade, Status_pessoal_sexo, Classe)
+
+kable(df_amostra, caption = "Amostra do Banco de Dados")
+```
+
+# 1. Intervalo de Confiança para Média
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Cálculo do intervalo de confiança para Valor_credito
+
+media_valor_credito <- mean(df$Valor_credito)
+ic_media <- t.test(df$Valor_credito, conf.level = 0.98)
+
+cat("Média do valor do crédito:", round(media_valor_credito, 2), "DM\n")
+cat("Intervalo de Confiança de 98%: [",
+round(ic_media$conf.int[1], 2), ",",
+round(ic_media$conf.int[2], 2), "]\n")
+```
+
+*Interpretação*: Com 98% de confiança, a média verdadeira do valor de crédito na população está entre 3063.27 e 3479.25 DM. Isso significa que se repetíssemos o estudo múltiplas vezes, em 98% dos casos o intervalo conteria a média populacional real.
+
+# 2. Intervalo de Confiança para Proporção
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# Cálculo do intervalo de confiança para proporção de bons créditos
+sucessos <- sum(df$Classe == 1)
+total <- length(df$Classe)
+
+ic_proporcao <- prop.test(sucessos, total, conf.level = 0.99)
+
+cat("Proporção de sucessos (bons créditos):", round(ic_proporcao$estimate * 100, 1), "%\n")
+cat("Intervalo de Confiança de 99%: [", 
+    round(ic_proporcao$conf.int[1] * 100, 1), "%,", 
+    round(ic_proporcao$conf.int[2] * 100, 1), "%]\n")
+```
+
+*Interpretação:* O resultado demonstra que a proporção de créditos bons (sucessos) é de aproximadamente 70%. Com 99% de confiança, essa proporção verdadeira na população está entre 66,1% e 73,6%. Isso indica que a maioria dos créditos na amostra são considerados bons.
+
+# 3. Teste de Hipótese para Duas Médias
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# Teste para comparar valor do crédito entre homens e mulheres divorciados
+homens_divorciados <- df$Valor_credito[df$Status_pessoal_sexo == "A91"]
+mulheres_divorciados <- df$Valor_credito[df$Status_pessoal_sexo == "A92"]
+
+# Teste de variâncias
+teste_var <- var.test(homens_divorciados, mulheres_divorciados)
+
+# Teste t para duas amostras
+teste_t <- t.test(homens_divorciados, mulheres_divorciados, var.equal = TRUE, conf.level = 0.98)
+
+cat("Média homens divorciados:", round(mean(homens_divorciados), 2), "DM\n")
+cat("Média mulheres divorciadas:", round(mean(mulheres_divorciados), 2), "DM\n")
+cat("p-valor do teste t:", round(teste_t$p.value, 3), "\n")  
+```
+
+**Hipóteses:**  
+- H0: media_homens = media_mulheres (nao ha diferenca)  
+- H1: media_homens != media_mulheres (ha diferenca)  
+
+**Resultados:**  
+- Media homens divorciados: 3684.7 DM  
+- Media mulheres divorciadas: 2877.77 DM  
+- p-valor: 0.048  
+
+**Decisao:** Como p-valor (0.048) > nivel_significancia (0.04), nao rejeitamos H0.
+
+*Interpretação:* A hipótese testa se homens divorciados pedem mais crédito que mulheres divorciadas. Como o p-valor (0.048) é maior que 2% (nível de significância), não há evidências suficientes para afirmar que há diferença significativa entre os valores médios de crédito solicitados por homens e mulheres divorciados, ao nível de confiança de 98%.
+
+# 4. Teste de Hipótese para Duas Proporções
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# Tabela de contingência
+tab <- table(df$Status_pessoal_sexo, df$Classe)
+
+# Teste de proporções
+teste_prop <- prop.test(tab, conf.level = 0.95)
+
+# Calculando proporções manualmente para interpretação
+prop_homens_divorciados <- tab["A91","1"]/sum(tab["A91",])
+prop_mulheres_divorciadas <- tab["A92","1"]/sum(tab["A92",])
+prop_homens_solteiros <- tab["A93","1"]/sum(tab["A93",])
+prop_homens_casados <- tab["A94","1"]/sum(tab["A94",])
+
+cat("Proporções de bons créditos:\n")
+cat("Homens divorciados:", round(prop_homens_divorciados * 100, 1), "%\n")
+cat("Mulheres divorciadas:", round(prop_mulheres_divorciadas * 100, 1), "%\n")
+cat("Homens solteiros:", round(prop_homens_solteiros * 100, 1), "%\n")
+cat("Homens casados/viúvos:", round(prop_homens_casados * 100, 1), "%\n")
+cat("p-valor do teste:", round(teste_prop$p.value, 3), "\n")
+```
+
+*Interpretação:* A hipótese testa se homens têm melhor qualidade de crédito. Como o p-valor (0.02) é menor que 5%, há diferença significativa entre as proporções. A hipótese pode ser sustentada, indicando que homens tendem a ter melhor qualidade de crédito, especialmente homens solteiros e casados/viúvos.
+
+# 5. ANOVA de Um Fator
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# Verificação de normalidade por grupo
+normalidade <- by(df$Meses_existencia, df$Status_conta, shapiro.test)
+
+# Teste de homogeneidade de variâncias
+teste_levene <- leveneTest(Meses_existencia ~ Status_conta, data = df)
+
+# ANOVA
+modelo_anova <- aov(Meses_existencia ~ Status_conta, data = df)
+resultado_anova <- summary(modelo_anova)
+
+cat("Teste de Levene - p-valor:", round(teste_levene$`Pr(>F)`[1], 5), "\n")
+cat("ANOVA - p-valor:", round(resultado_anova[[1]]$`Pr(>F)`[1], 5), "\n")
+```
+
+*Interpretação:* Verifica-se se há diferença no tempo de existência da conta entre diferentes status de conta. Embora os pressupostos de normalidade e homogeneidade sejam violados, o p-valor da ANOVA (0.00267 < 0.05) indica que há diferença significativa no tempo de existência da conta entre os grupos, mesmo com as violações.Logo, há diferença siginificativa no tempo de existência da conta entre os grupos
+
+# 6. Correlação de Pearson 
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# Correlação entre idade e valor do crédito
+cor_test <- cor.test(df$Idade, df$Valor_credito, method = "pearson")
+
+# Gráfico de dispersão
+plot(df$Idade, df$Valor_credito,
+     main = "Dispersão: Idade x Valor do Crédito",
+     xlab = "Idade",
+     ylab = "Valor do Crédito Solicitado (DM)",
+     pch = 19, col = "darkblue")
+abline(lm(df$Valor_credito ~ df$Idade), col = "red", lwd = 2)
+
+cat("Coeficiente de correlação:", round(cor_test$estimate, 3), "\n")
+cat("p-valor:", round(cor_test$p.value, 4), "\n") 
+```
+
+*Interpretação:* Não há correlação significativa entre idade e valor do crédito solicitado (p-valor = 0.3013 > 0.05). A idade não influencia significativamente o valor do crédito solicitado pelos clientes.
+
+# 7. Regressão Linear Simples
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# Modelo de regressão linear
+modelo <- lm(Idade ~ Valor_credito, data = df)
+sumario <- summary(modelo)
+residuos <- residuals(modelo)
+normalidade_residuos <- shapiro.test(residuos)
+
+cat("Modelo: Idade =", round(coef(modelo)[1], 2), "+", round(coef(modelo)[2], 7), "* Valor_credito\n")
+cat("R²:", round(sumario$r.squared, 5), "\n")
+cat("p-valor do coeficiente:", round(sumario$coefficients[2,4], 3), "\n")
+cat("Teste de normalidade dos resíduos - p-valor:", format.pval(normalidade_residuos$p.value, digits = 3), "\n")
+```
+
+*Interpretação:* O modelo não é significativo (p-valor = 0.301 > 0.05) e explica apenas 0.1% da variação na idade. Os resíduos não seguem distribuição normal. Conclui-se que não há relação significativa entre idade e valor do crédito, reforçando nossa ideia anterior.
+
+# 8. Transformação de Dados
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# Verificação da normalidade original
+normalidade_original <- shapiro.test(df$Valor_credito)
+
+# Aplicação da transformação logarítmica
+df$log_valor_credito <- log(df$Valor_credito)
+normalidade_transformada <- shapiro.test(df$log_valor_credito)
+
+# Cálculo da média na escala original
+media_log <- mean(df$log_valor_credito)
+media_original <- exp(media_log)
+
+# Gráficos comparativos
+par(mfrow = c(1, 2))
+hist(df$Valor_credito, main = "Distribuição Original",
+     xlab = "Valor do Crédito (DM)", col = "lightblue", breaks = 30)
+hist(df$log_valor_credito, main = "Distribuição Logarítmica",
+     xlab = "log(Valor do Crédito)", col = "lightgreen", breaks = 30)
+
+cat("Normalidade original - W:", round(normalidade_original$statistic, 4), 
+    "p-valor:", format.pval(normalidade_original$p.value, digits = 3), "\n")
+cat("Normalidade transformada - W:", round(normalidade_transformada$statistic, 4), 
+    "p-valor:", format.pval(normalidade_transformada$p.value, digits = 3), "\n")
+cat("Média na escala logarítmica:", round(media_log, 2), "\n")
+cat("Média retransformada:", round(media_original, 2), "DM\n")
+```
+
+*Interpretação:* A transformação logarítmica melhorou significativamente a normalidade dos dados. Embora não seja perfeitamente normal (p < 0.05), a distribuição ficou muito mais simétrica e próxima da normalidade, tornando os dados mais adequados para análises estatísticas paramétricas.
+
+# Conclusão Geral 
+
+As análises revelam que:
+
+- O valor médio do crédito está em torno de 3.271 DM
+
+- Aproximadamente 70% dos créditos são considerados bons
+
+- Homens tendem a ter melhor qualidade de crédito que mulheres
+
+- Não há relação significativa entre idade e valor do crédito
+
+- A transformação logarítmica melhorou a distribuição do valor do crédito.

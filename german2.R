@@ -38,7 +38,7 @@ t.test(df$Valor_credito, conf.level = 0.98)
 sucessos <- sum(df$Classe == 1)
 total <- length(df$Classe)
 
-prop.test(sucessos, total, conf.level = 0.98)
+prop.test(sucessos, total, conf.level = 0.99)
 
 # 3. Teste de Hipóstese para duas Médias (amostras independentes)
 homens_divorciados <- df$Valor_credito[df$Status_pessoal_sexo == "A91"]
